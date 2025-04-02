@@ -32,8 +32,16 @@
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div id="flashcards-container">
+            <style>
+                .flashcard-hidden {
+                    display: none;
+                }
+                .flashcard-visible {
+                    display: block;
+                }
+            </style>
             {% for flashcard in flashcards %}
-            <div class="flashcard" data-id="{{ flashcard.id }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+            <div class="flashcard {% if forloop.first %}flashcard-visible{% else %}flashcard-hidden{% endif %}" data-id="{{ flashcard.id }}">
                 <div class="flashcard-inner">
                     <div class="flashcard-front">
                         <div class="flashcard-word">{{ flashcard.vocabulary_item.word }}</div>
@@ -120,11 +128,13 @@
         function showCard(index) {
             flashcards.forEach((card, i) => {
                 if (i === index) {
-                    card.style.display = 'block';
+                    card.classList.remove('flashcard-hidden');
+                    card.classList.add('flashcard-visible');
                     // Reset flip state when changing cards
                     card.classList.remove('flipped');
                 } else {
-                    card.style.display = 'none';
+                    card.classList.remove('flashcard-visible');
+                    card.classList.add('flashcard-hidden');
                 }
             });
             
