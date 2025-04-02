@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}LinguaLearn - Home{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-12 text-center">
+        <h1 class="display-4 mb-4">Welcome to LinguaLearn</h1>
+        <p class="lead">Your personal language learning platform with flashcards, vocabulary lists, and lessons.</p>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="stats-box">
+            <div class="stats-number">{{ lessons.count }}</div>
+            <h3>Lessons</h3>
+            <p>Available language lessons</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-box">
+            <div class="stats-number">{{ vocab_count }}</div>
+            <h3>Words</h3>
+            <p>Vocabulary items to learn</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-box">
+            <div class="stats-number">{{ flashcard_count }}</div>
+            <h3>Flashcards</h3>
+            <p>Practice with flashcards</p>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-md-12">
+        <h2 class="text-center mb-4">Features</h2>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">📚</div>
+                <h3 class="card-title">Lessons</h3>
+                <p class="card-text">Organize your vocabulary into themed lessons for structured learning.</p>
+                <a href="{% url 'lesson-list' %}" class="btn btn-primary">View Lessons</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">📝</div>
+                <h3 class="card-title">Vocabulary</h3>
+                <p class="card-text">Build your vocabulary with words, translations, and example sentences.</p>
+                <a href="{% url 'vocabulary-list' %}" class="btn btn-primary">View Vocabulary</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">🔄</div>
+                <h3 class="card-title">Flashcards</h3>
+                <p class="card-text">Practice with interactive flashcards to memorize vocabulary effectively.</p>
+                <a href="{% url 'flashcard-study' %}" class="btn btn-study">Study Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Lessons Section -->
+{% if lessons %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-container">
+            <h2 class="mb-4">Recent Lessons</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Language</th>
+                            <th>Words</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lesson in lessons %}
+                        <tr>
+                            <td>{{ lesson.title }}</td>
+                            <td>{{ lesson.language.name }}</td>
+                            <td>{{ lesson.word_count }}</td>
+                            <td>{{ lesson.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'lesson-detail' lesson.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'lesson-list' %}" class="btn btn-outline-primary">View All Lessons</a>
+                <a href="{% url 'lesson-create' %}" class="btn btn-primary">Create New Lesson</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

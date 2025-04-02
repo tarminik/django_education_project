@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Flashcards | LinguaLearn{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 text-center">
+        <h1>Study Flashcards</h1>
+        <p class="lead">Click on a card to flip it and see the translation. Rate your mastery level after reviewing.</p>
+    </div>
+</div>
+
+{% if flashcards %}
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span id="current-card">1</span> / <span id="total-cards">{{ flashcards.count }}</span>
+                    </div>
+                    <div>
+                        <button id="prev-card" class="btn btn-outline-primary me-2" disabled>Previous</button>
+                        <button id="next-card" class="btn btn-primary">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div id="flashcards-container">
+            {% for flashcard in flashcards %}
+            <div class="flashcard" data-id="{{ flashcard.id }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <div class="flashcard-word">{{ flashcard.vocabulary_item.word }}</div>
+                        {% if flashcard.vocabulary_item.image %}
+                        <img src="{{ flashcard.vocabulary_item.image.url }}" alt="{{ flashcard.vocabulary_item.word }}" class="flashcard-image">
+                        {% endif %}
+                        <p class="text-muted">Click to see translation</p>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="flashcard-translation">{{ flashcard.vocabulary_item.translation }}</div>
+                        {% if flashcard.vocabulary_item.example_sentence %}
+                        <div class="flashcard-example">{{ flashcard.vocabulary_item.example_sentence }}</div>
+                        {% endif %}
+                        <div class="mt-4">
+                            <p>How well do you know this word?</p>
+                            <div class="mastery-level" data-flashcard-id="{{ flashcard.id }}">
+                                {% for i in "12345" %}
+                                <span class="mastery-star {% if forloop.counter <= flashcard.mastery_level %}active{% endif %}" data-level="{{ forloop.counter }}">★</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <p>No flashcards available yet. <a href="{% url 'vocabulary-create' %}">Add vocabulary</a> to create flashcards.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashcards = document.querySelectorAll('.flashcard');
+        const totalCards = flashcards.length;
+        let currentCardIndex = 0;
+        
+        const prevButton = document.getElementById('prev-card');
+        const nextButton = document.getElementById('next-card');
+        const currentCardElement = document.getElementById('current-card');
+        
+        // Flip card when clicked
+        flashcards.forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('flipped');
+            });
+        });
+        
+        // Handle mastery level selection
+        document.querySelectorAll('.mastery-level').forEach(container => {
+            const stars = container.querySelectorAll('.mastery-star');
+            const flashcardId = container.dataset.flashcardId;
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent card flip when clicking star
+                    const level = this.dataset.level;
+                    
+                    // Update UI
+                    stars.forEach(s => {
+                        if (parseInt(s.dataset.level) <= parseInt(level)) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                    
+                    // Send update to server
+                    updateMasteryLevel(flashcardId, level);
+                });
+            });
+        });
+        
+        // Navigation functions
+        function showCard(index) {
+            flashcards.forEach((card, i) => {
+                if (i === index) {
+                    card.style.display = 'block';
+                    // Reset flip state when changing cards
+                    card.classList.remove('flipped');
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            currentCardElement.textContent = index + 1;
+            
+            // Update button states
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === totalCards - 1;
+        }
+        
+        prevButton.addEventListener('click', function() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                showCard(currentCardIndex);
+            }
+        });
+        
+        nextButton.addEventListener('click', function() {
+            if (currentCardIndex < totalCards - 1) {
+                currentCardIndex++;
+                showCard(currentCardIndex);
+            }
+        });
+        
+        // Function to update mastery level on the server
+        function updateMasteryLevel(flashcardId, level) {
+            const formData = new FormData();
+            formData.append('mastery_level', level);
+            
+            fetch(`/flashcards/${flashcardId}/update-mastery/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    console.error('Error updating mastery level');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

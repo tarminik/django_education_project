@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Lessons | LinguaLearn{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Language Lessons</h1>
+        <p class="lead">Browse all available lessons or create a new one.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'lesson-create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Lesson
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-container">
+            {% if lessons %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Language</th>
+                            <th>Description</th>
+                            <th>Words</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lesson in lessons %}
+                        <tr>
+                            <td>{{ lesson.title }}</td>
+                            <td>{{ lesson.language.name }}</td>
+                            <td>{{ lesson.description|truncatechars:50 }}</td>
+                            <td>{{ lesson.word_count }}</td>
+                            <td>{{ lesson.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'lesson-detail' lesson.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>No lessons available yet. <a href="{% url 'lesson-create' %}">Create your first lesson</a>.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

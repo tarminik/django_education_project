@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Flashcards | LinguaLearn{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Flashcards</h1>
+        <p class="lead">View all your flashcards or start studying.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'flashcard-study' %}" class="btn btn-study">Study Now</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-container">
+            {% if flashcards %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Word</th>
+                            <th>Translation</th>
+                            <th>Lesson</th>
+                            <th>Mastery Level</th>
+                            <th>Last Reviewed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for flashcard in flashcards %}
+                        <tr>
+                            <td>{{ flashcard.vocabulary_item.word }}</td>
+                            <td>{{ flashcard.vocabulary_item.translation }}</td>
+                            <td>{{ flashcard.vocabulary_item.lesson.title }}</td>
+                            <td>
+                                <div class="mastery-level">
+                                    {% for i in "12345" %}
+                                    <span class="mastery-star {% if forloop.counter <= flashcard.mastery_level %}active{% endif %}">★</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if flashcard.last_reviewed %}
+                                {{ flashcard.last_reviewed|date:"M d, Y" }}
+                                {% else %}
+                                Never
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>No flashcards available yet. <a href="{% url 'vocabulary-create' %}">Add vocabulary</a> to create flashcards.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

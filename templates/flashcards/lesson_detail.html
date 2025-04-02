@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} | LinguaLearn{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>{{ lesson.title }}</h1>
+        <p class="text-muted">Language: {{ lesson.language.name }} | Created: {{ lesson.created_at|date:"F d, Y" }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'vocabulary-create' %}" class="btn btn-primary">Add Vocabulary</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Description</h5>
+                <p class="card-text">{{ lesson.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-container">
+            <h2>Vocabulary Items ({{ vocabulary_items.count }})</h2>
+            
+            {% if vocabulary_items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Word</th>
+                            <th>Translation</th>
+                            <th>Example</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in vocabulary_items %}
+                        <tr>
+                            <td>{{ item.word }}</td>
+                            <td>{{ item.translation }}</td>
+                            <td>{{ item.example_sentence|default:"-" }}</td>
+                            <td>
+                                {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="{{ item.word }}" style="max-height: 50px;">
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'flashcard-study' %}" class="btn btn-study">Study These Words</a>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>No vocabulary items in this lesson yet. <a href="{% url 'vocabulary-create' %}">Add your first vocabulary item</a>.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
